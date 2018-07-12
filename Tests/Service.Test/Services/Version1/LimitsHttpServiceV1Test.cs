@@ -104,12 +104,12 @@ namespace PipServicesLimitsDotnet.Services.Version1
             limit1.AmountUsed += limit1.AmountUsed / 2;
             TestModel.AssertEqual(limit1, limit);
 
-            var amount = await Invoke<ResultV1>("get_amount_available_to_user", new { user_id = limit1.UserId });
-            Assert.Equal(amount.longResult, limit1.Limit - limit1.AmountUsed);
+            var amountAvailable = await Invoke<ResultV1>("get_amount_available_to_user", new { user_id = limit1.UserId });
+            Assert.Equal(amountAvailable.longResult, limit1.Limit - limit1.AmountUsed);
 
             var isIncreasable = await Invoke<ResultV1>("can_user_add_amount", new { user_id = limit1.UserId, amount = limit1.Limit });
             Assert.False(isIncreasable.boolResult);
-            isIncreasable = await Invoke<ResultV1>("can_user_add_amount", new { user_id = limit1.UserId, amount = amount });
+            isIncreasable = await Invoke<ResultV1>("can_user_add_amount", new { user_id = limit1.UserId, amount = amountAvailable.longResult });
             Assert.True(isIncreasable.boolResult);
 
             //Delete all

@@ -1,0 +1,20 @@
+version: '3.3'
+
+services:
+  test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.test
+    image: ${IMAGE:-test}
+    depends_on: 
+      - mongo
+    environment:
+      - MONGO_ENABLED=true
+      - MONGO_SERVICE_HOST=mongo
+      - MONGO_SERVICE_PORT=27017
+      - MONGO_SERVICE_DB=test
+    command: ${TEST_CMD:-bash -c "dotnet test Tests/Service.Test/Service.Test.csproj && dotnet test Tests/Client.Test/Client.Test.csproj"}
+
+  mongo:
+    image: mongo:latest
+

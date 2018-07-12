@@ -1,7 +1,6 @@
-﻿using PipServices.Commons.Config;
-
+﻿using System;
+using PipServices.Commons.Config;
 using System.Threading.Tasks;
-
 using Xunit;
 
 namespace PipServicesLimitsDotnet.Persistence
@@ -14,10 +13,21 @@ namespace PipServicesLimitsDotnet.Persistence
 
         public LimitsMongoDbPersistenceTest()
         {
+            var mongoUri = Environment.GetEnvironmentVariable("MONGO_SERVICE_URI");
+            var mongoHost = Environment.GetEnvironmentVariable("MONGO_SERVICE_HOST") ?? "localhost";
+            var mongoPort = Environment.GetEnvironmentVariable("MONGO_SERVICE_PORT") ?? "27017";
+            var mongoDatabase = Environment.GetEnvironmentVariable("MONGO_SERVICE_DB") ?? "test";
+
+            // Exit if mongo connection is not set
+            if (mongoUri == null && mongoHost == null)
+                return;
+
             ConfigParams config = ConfigParams.FromTuples(
-                "collection", "limits",
-                "connection.uri", "mongodb://localhost:27017/test"
-                );
+                "connection.uri", mongoUri,
+                "connection.host", mongoHost,
+                "connection.port", mongoPort,
+                "connection.database", mongoDatabase
+             );
 
             Persistence = new LimitsMongoDbPersistence();
             Persistence.Configure(config);
