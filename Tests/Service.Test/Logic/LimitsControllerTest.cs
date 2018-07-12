@@ -264,10 +264,12 @@ namespace PipServicesLimitsDotnet.Logic
             await _controller.CreateLimitAsync(null, limit);
 
             //act
+            var nullResponse = await _controller.GetAmountAvailableToUserAsync(null, "");
             var amountAvailable = await _controller.GetAmountAvailableToUserAsync(null, limit.UserId);
 
             //assert
-            Assert.Equal(limit.Limit - limit.AmountUsed, amountAvailable);
+            Assert.Null(nullResponse);
+            Assert.Equal(limit.Limit - limit.AmountUsed, amountAvailable.longResult);
         }
 
         [Fact]
@@ -276,7 +278,7 @@ namespace PipServicesLimitsDotnet.Logic
             //arrange
             var limit = TestModel.CreateLimit1();
             var result = await _controller.CreateLimitAsync(null, limit);
-            var amountAvailable = await _controller.GetAmountAvailableToUserAsync(null, limit.UserId);
+            var amountAvailable = (await _controller.GetAmountAvailableToUserAsync(null, limit.UserId)).longResult;
 
             //act
             var cannotBeAdded1 = await _controller.CanUserAddAmountAsync(null, limit.UserId, limit.Limit);
@@ -285,10 +287,10 @@ namespace PipServicesLimitsDotnet.Logic
             var cannotBeAdded2 = await _controller.CanUserAddAmountAsync(null, limit.UserId, (-1) * amountAvailable);
 
             //assert
-            Assert.False(cannotBeAdded1);
-            Assert.True(canBeAdded1);
-            Assert.True(canBeAdded2);
-            Assert.False(cannotBeAdded2);
+            Assert.False(cannotBeAdded1.boolResult);
+            Assert.True(canBeAdded1.boolResult);
+            Assert.True(canBeAdded2.boolResult);
+            Assert.Null(cannotBeAdded2);
         }
 
     }

@@ -123,22 +123,22 @@ namespace PipServicesLimitsDotnet.Logic
             return await this._persistence.UpdateAsync(correlationId, result);
         }
 
-        public async Task<long> GetAmountAvailableToUserAsync(string correlationId, string userId)
+        public async Task<ResultV1> GetAmountAvailableToUserAsync(string correlationId, string userId)
         {
             var result = await this._persistence.GetOneByUserIdAsync(correlationId, userId);
             if (result == null)
-                return 0;
+                return null;
 
-            return result.Limit - result.AmountUsed;
+            return new ResultV1() { longResult = result.Limit - result.AmountUsed };
         }
 
-        public async Task<bool> CanUserAddAmountAsync(string correlationId, string userId, long amount)
+        public async Task<ResultV1> CanUserAddAmountAsync(string correlationId, string userId, long amount)
         {
             var result = await this._persistence.GetOneByUserIdAsync(correlationId, userId);
             if (result == null || amount < 0)
-                return false;
+                return null;
 
-            return (result.AmountUsed + amount) <= result.Limit;
+            return new ResultV1() { boolResult = (result.AmountUsed + amount) <= result.Limit };
         }
     }
 

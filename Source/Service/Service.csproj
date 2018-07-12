@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="PipServices.Commons" Version="2.3.19" />
     <PackageReference Include="PipServices.Oss" Version="1.1.29" />
+    <PackageReference Include="PipServices.Container" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +21,8 @@
     <Folder Include="Services\" />
     <Folder Include="Services\Version1\" />
     <Folder Include="Logic\" />
+    <Folder Include="Build\" />
+    <Folder Include="Container\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interface\Interface.csproj" />
