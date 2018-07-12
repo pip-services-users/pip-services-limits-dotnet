@@ -30,4 +30,8 @@
     <Folder Include="Persistence\" />
     <Folder Include="Services\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Service\Service.csproj" />
+    <ProjectReference Include="..\..\Source\Interface\Interface.csproj" />
+  </ItemGroup>
 </Project>

@@ -77,7 +77,7 @@ namespace PipServicesLimitsDotnet.Services.Version1
             Assert.NotNull(page);
             Assert.Equal(3, page.Data.Count);
 
-            limit1.CurrentAmountUsed = limit1.Limit/2;
+            limit1.AmountUsed = limit1.Limit/2;
 
             var limit = await Invoke<LimitV1>("update_limit", new { limit = limit1 });
             TestModel.AssertEqual(limit1, limit);
@@ -96,21 +96,21 @@ namespace PipServicesLimitsDotnet.Services.Version1
             limit1.Limit += limit1.Limit / 2;
             TestModel.AssertEqual(limit1, limit);
 
-            limit = await Invoke<LimitV1>("decrease_amount_used_by_user", new { decrease_by = limit1.CurrentAmountUsed / 2, user_id = limit1.UserId });
-            limit1.CurrentAmountUsed -= limit1.CurrentAmountUsed / 2;
+            limit = await Invoke<LimitV1>("decrease_amount_used_by_user", new { decrease_by = limit1.AmountUsed / 2, user_id = limit1.UserId });
+            limit1.AmountUsed -= limit1.AmountUsed / 2;
             TestModel.AssertEqual(limit1, limit);
 
-            limit = await Invoke<LimitV1>("increase_amount_used_by_user", new { increase_by = limit1.CurrentAmountUsed / 2, user_id = limit1.UserId });
-            limit1.CurrentAmountUsed += limit1.CurrentAmountUsed / 2;
+            limit = await Invoke<LimitV1>("increase_amount_used_by_user", new { increase_by = limit1.AmountUsed / 2, user_id = limit1.UserId });
+            limit1.AmountUsed += limit1.AmountUsed / 2;
             TestModel.AssertEqual(limit1, limit);
 
-            //amount = await Invoke<long>("get_amount_left_for_user", new { decrease_by = (long)limit1.CurrentAmountUsed / 2, user_id = limit1.UserId });
-            //limit1.CurrentAmountUsed -= (long)limit1.CurrentAmountUsed / 2;
-            //TestModel.AssertEqual(limit1, limit);
+            var amount = await Invoke<long>("get_amount_available_to_user", new { user_id = limit1.UserId });
+            Assert.Equal(amount, limit1.Limit - limit1.AmountUsed);
 
-            //var isIncreasable = await Invoke<bool>("is_users_amount_used_increasable_by", new { increase_by = (long)limit1.CurrentAmountUsed / 2, user_id = limit1.UserId });
-            //limit1.CurrentAmountUsed += (long)limit1.CurrentAmountUsed / 2;
-            //TestModel.AssertEqual(limit1, limit);
+            var isIncreasable = await Invoke<bool>("can_user_add_amount", new { user_id = limit1.UserId, amount = limit1.Limit });
+            Assert.False(isIncreasable);
+            isIncreasable = await Invoke<bool>("can_user_add_amount", new { user_id = limit1.UserId, amount = amount });
+            Assert.True(isIncreasable);
 
             //Delete all
             limit = await Invoke<LimitV1>("delete_limit_by_id", new { id = limit1.Id });

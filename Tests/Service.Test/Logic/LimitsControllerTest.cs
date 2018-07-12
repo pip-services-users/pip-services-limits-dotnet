@@ -149,7 +149,7 @@ namespace PipServicesLimitsDotnet.Logic
 
             //act
             var amount = (long)(limit.Limit * 0.1);
-            var result = await _controller.IncreaseLimitOfUserAsync(null,  amount, limit.UserId);
+            var result = await _controller.IncreaseLimitOfUserAsync(null, limit.UserId, amount);
             limit.Limit += amount;
 
             //assert
@@ -165,7 +165,7 @@ namespace PipServicesLimitsDotnet.Logic
 
             //act
             var amount = (long)(limit.Limit * 0.1);
-            var result = await _controller.DecreaseLimitOfUserAsync(null, amount, limit.UserId);
+            var result = await _controller.DecreaseLimitOfUserAsync(null, limit.UserId, amount);
             limit.Limit -= amount;
 
             //assert
@@ -180,9 +180,9 @@ namespace PipServicesLimitsDotnet.Logic
             await _controller.CreateLimitAsync(null, limit);
 
             //act
-            var result1 = await _controller.DecreaseLimitOfUserAsync(null, limit.Limit, limit.UserId);
+            var result1 = await _controller.DecreaseLimitOfUserAsync(null, limit.UserId, limit.Limit);
             limit.Limit = 0;
-            var result2 = await _controller.DecreaseLimitOfUserAsync(null, 1, limit.UserId);
+            var result2 = await _controller.DecreaseLimitOfUserAsync(null, limit.UserId, 1);
 
             //assert
             TestModel.AssertEqual(limit, result1);
@@ -200,8 +200,8 @@ namespace PipServicesLimitsDotnet.Logic
 
             //act
             var amount = (long)(limit.Limit * 0.1);
-            var result = await _controller.IncreaseAmountUsedByUserAsync(null, amount, limit.UserId);
-            limit.CurrentAmountUsed += amount;
+            var result = await _controller.IncreaseAmountUsedByUserAsync(null, limit.UserId, amount);
+            limit.AmountUsed += amount;
 
             //assert
             TestModel.AssertEqual(limit, result);
@@ -217,7 +217,7 @@ namespace PipServicesLimitsDotnet.Logic
             await _controller.CreateLimitAsync(null, limit);
 
             //act
-            var result = await _controller.IncreaseAmountUsedByUserAsync(null, limit.Limit, limit.UserId);
+            var result = await _controller.IncreaseAmountUsedByUserAsync(null, limit.UserId, limit.Limit);
 
             //assert
             Assert.Null(result);
@@ -231,9 +231,9 @@ namespace PipServicesLimitsDotnet.Logic
             await _controller.CreateLimitAsync(null, limit);
 
             //act
-            var amount = (long)(limit.CurrentAmountUsed * 0.5);
-            var result = await _controller.DecreaseAmountUsedByUserAsync(null, amount, limit.UserId);
-            limit.CurrentAmountUsed -= amount;
+            var amount = (long)(limit.AmountUsed * 0.5);
+            var result = await _controller.DecreaseAmountUsedByUserAsync(null, limit.UserId, amount);
+            limit.AmountUsed -= amount;
 
             //assert
             TestModel.AssertEqual(limit, result);
@@ -247,15 +247,49 @@ namespace PipServicesLimitsDotnet.Logic
             await _controller.CreateLimitAsync(null, limit);
 
             //act
-            var result1 = await _controller.DecreaseAmountUsedByUserAsync(null, limit.CurrentAmountUsed, limit.UserId);
-            limit.CurrentAmountUsed = 0;
-            var result2 = await _controller.DecreaseAmountUsedByUserAsync(null, 1, limit.UserId);
+            var result1 = await _controller.DecreaseAmountUsedByUserAsync(null, limit.UserId, limit.AmountUsed);
+            limit.AmountUsed = 0;
+            var result2 = await _controller.DecreaseAmountUsedByUserAsync(null, limit.UserId, 1);
 
             //assert
             TestModel.AssertEqual(limit, result1);
             Assert.Null(result2);
         }
 
+        [Fact]
+        public async void It_Should_Get_Amount_Available_To_User()
+        {
+            //arrange
+            var limit = TestModel.CreateLimit1();
+            await _controller.CreateLimitAsync(null, limit);
+
+            //act
+            var amountAvailable = await _controller.GetAmountAvailableToUserAsync(null, limit.UserId);
+
+            //assert
+            Assert.Equal(limit.Limit - limit.AmountUsed, amountAvailable);
+        }
+
+        [Fact]
+        public async void It_Should_Check_If_Amount_Can_Be_Added()
+        {
+            //arrange
+            var limit = TestModel.CreateLimit1();
+            var result = await _controller.CreateLimitAsync(null, limit);
+            var amountAvailable = await _controller.GetAmountAvailableToUserAsync(null, limit.UserId);
+
+            //act
+            var cannotBeAdded1 = await _controller.CanUserAddAmountAsync(null, limit.UserId, limit.Limit);
+            var canBeAdded1 = await _controller.CanUserAddAmountAsync(null, limit.UserId, amountAvailable);
+            var canBeAdded2 = await _controller.CanUserAddAmountAsync(null, limit.UserId, amountAvailable/2);
+            var cannotBeAdded2 = await _controller.CanUserAddAmountAsync(null, limit.UserId, (-1) * amountAvailable);
+
+            //assert
+            Assert.False(cannotBeAdded1);
+            Assert.True(canBeAdded1);
+            Assert.True(canBeAdded2);
+            Assert.False(cannotBeAdded2);
+        }
 
     }
 }

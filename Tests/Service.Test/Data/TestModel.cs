@@ -17,7 +17,7 @@ namespace PipServicesLimitsDotnet.Data
             {
                 Id = "1",
                 UserId = "00001",
-                CurrentAmountUsed = 5000,
+                AmountUsed = 5000,
                 Limit = 100000
             };
         }
@@ -28,7 +28,7 @@ namespace PipServicesLimitsDotnet.Data
             {
                 Id = "2",
                 UserId = "00002",
-                CurrentAmountUsed = 3000,
+                AmountUsed = 3000,
                 Limit = 100000
             };
         }
@@ -39,7 +39,7 @@ namespace PipServicesLimitsDotnet.Data
             {
                 Id = "3",
                 UserId = "00003",
-                CurrentAmountUsed = 90000,
+                AmountUsed = 90000,
                 Limit = 10000000
             };
         }
@@ -49,7 +49,7 @@ namespace PipServicesLimitsDotnet.Data
             Assert.Equal(expectedLimit.Id, actualLimit.Id);
             Assert.Equal(expectedLimit.UserId, actualLimit.UserId);
             Assert.Equal(expectedLimit.Limit, actualLimit.Limit);
-            Assert.Equal(expectedLimit.CurrentAmountUsed, actualLimit.CurrentAmountUsed);
+            Assert.Equal(expectedLimit.AmountUsed, actualLimit.AmountUsed);
         }
     }
 }
